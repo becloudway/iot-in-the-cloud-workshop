@@ -371,7 +371,7 @@ Now lets start some communication with the cloud!
 
 > For more information about the MQTT API go to the [Mongoose OS MqTT documentation](https://mongoose-os.com/docs/mos/api/net/mqtt.md)
 
-First of we need some code to see if we are connected, we can do this with the following code snippets.
+First off we need some code to see if we are connected, we can do this with the following code snippets.
 
 First we add a function that we call when we connect to MqTT:
 
@@ -464,7 +464,33 @@ MQTT.sub('iot/team_name/note', function(conn, topic, msg) {
 }, null);
 ```
 
-So basically that's it you can add some code to for instance play a note when you connect to MQTT or when you disconnect. And probably you want to add some message validation etc. But this does the trick for now :D
+So basically that's it you can add some code to for instance to play a note when you connect to MQTT or when you disconnect. And probably you want to add some message validation etc. But this does the trick for now :D
+
+So go to your MOS UI and enter the following commands:
+
+```sh
+mos put fs/init.js
+mos call Sys.Reboot
+```
+
+If everything went alright, you should here your G5 playing and in the console output your should see that the device connected to the WiFi and MqTT.
 
 ### Part 7 - Testing our code
 
+Now let's head back to the AWS Console homepage. Here we will search for `IoT` and select `IoT Core` so far so good. You should now see the following page. If you do not, you might see the get started page if so just hit `the blue button`.
+
+![aws iot test](../images/aws_iot_test.png)
+
+Click `Test` in the sidebar, now you should see the following page:
+
+![aws iot test page](../images/aws_iot_test_page.png)
+
+Now scroll down, go to `Publish` for topic name enter: `iot/team_name/note` and for the message clean out the box and fill in: `C5` to play a nice C5.
+
+Not hit `Publish to topic` to send the message towards the topic and you should hear a C5 buzzer note.
+
+![aws iot test](../images/aws_iot_publsh.png)
+
+### Part 8 - Lambda
+
+For the final part, we will use a Lambda function to play our note.
