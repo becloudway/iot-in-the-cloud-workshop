@@ -297,17 +297,17 @@ So let's get started by going to the AWS console by [clicking here](https://eu-w
 
 Now that you are in the AWS Console you have to find IAM, you can do this by clicking the search box and enter `iam` and than clicking on `IAM`.
 
-![finding iam](../images/aws_console_find_iam_user_info.png)
+![finding iam](../images/aws_console_find_iam.png)
 
 Now you should see the IAM Console
 
-![iam home](../images/aws_console_iam_home.pnh)
+![iam home](../images/aws_console_iam_home.png)
 
 On the left you can click on `Users` which should bring you to the user list, here you should click on your user.
 
 Now go to the `Security Credentials` tab.
 
-![user security credentials](../images/aws_console_)
+![user security credentials](../images/aws_console_user_info.png)
 
 Scroll down a bit and you will find the `Create access key` button, click on it and it will show you the following pop-up.
 
