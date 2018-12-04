@@ -1,7 +1,7 @@
 # The Extended Love Note
 
 > ### Make sure to finish basic setup first!
-> We wrote a basic installation manual which you can find here: [Basic Installation](../installation/readme.md). 
+> We wrote a basic installation manual which you can find here: [Basic Installation](https://github.com/becloudway/iot-in-the-cloud-workshop/tree/master/guided/installation). 
 > You can also use the Quickstart guide from Mongoose Os which can be found here [Quick Start Guide - Mongoose Os](https://mongoose-os.com/docs/quickstart/setup.md) finish step 1 to 3 and you should be fine. But you would still need to install GIT and the AWS CLI.
 
 ## What you will be making?
