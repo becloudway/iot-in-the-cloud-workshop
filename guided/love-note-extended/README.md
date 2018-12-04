@@ -236,7 +236,7 @@ Now let's write a function that plays a tone, to so we first have to define our 
 
 An easy way to do this is by mapping our notes to a certain frequency so add the following piece of code:
 
-### Step 3.PlayNotes
+### Step 4 - Play Notes
 
 ```js 
 // NOTE object maps Frequencies to Notes
@@ -289,4 +289,182 @@ mos call Sys.Reboot
 
 This will send the updated code to your device and reboot the system. When that is done you should hear a beeping G5.
 
-### Step 3.ConnectingToAWS
+### Step 5 - Connecting To AWS
+
+Now that we can play a note the easy part is over, because now we need to connect to AWS. We will start with logging in to the AWS console. If you don't have an account make sure to register (for our workshop we provide accounts). 
+
+So let's get started by going to the AWS console by [clicking here](https://eu-west-1.signin.aws.amazon.com). Enter you alias, username and password (during the workshop you will get our alias, iam username and password). Hit `Sign In`.
+
+Now that you are in the AWS Console you have to find IAM, you can do this by clicking the search box and enter `iam` and than clicking on `IAM`.
+
+![finding iam](../images/aws_console_find_iam_user_info.png)
+
+Now you should see the IAM Console
+
+![iam home](../images/aws_console_iam_home.pnh)
+
+On the left you can click on `Users` which should bring you to the user list, here you should click on your user.
+
+Now go to the `Security Credentials` tab.
+
+![user security credentials](../images/aws_console_)
+
+Scroll down a bit and you will find the `Create access key` button, click on it and it will show you the following pop-up.
+
+![aws user secret](../images/aws_console_iam_secret.png)
+
+Make sure to hit `download .csv file` to save your credentials and if you like you can copy and note your `access key id` and `secret access key`. You will need these in the next step.
+
+Now go back to the MOS UI for the next part.
+
+Next there are two things that you need to do:
+1. Connecting your ESP32 to the WIFI
+2. Setup AWS IOT for your ESP32
+
+Both are easy thanks to the people of Mongoose Os.
+
+**Connecting to WIFI**
+
+Open up the MOS UI and enter the following command:
+
+```sh
+mos wifi <SSID> <WIFI_PASSWORD>
+```
+
+Replace <SSID> with your WiFi accespoints SSID and WIFI_PASSWORD with your WiFi password.
+
+When everything goes well you should see a message like:
+
+```sh
+mgos_net_on_change_c WiFi STA: connected
+```
+
+**Setting up AWS IoT**
+
+Let's setup our AWS credentials:
+
+open a terminal and enter the following command.
+
+```sh
+aws configure
+```
+
+When prompted enter your access key id and secret key. For the region enter `eu-west-1` and for default output format just hit enter.
+
+Now restart MOS UI to make sure that it loaded your new credentials. 
+
+This will set your credentials for AWS so that you can now use the AWS CLI.
+
+If you did setup your AWS credentials correctly it should be as easy as entering:
+
+```sh
+mos aws-iot-setup
+```
+
+This will run some commands using the AWS CLI and create the required certificates. Than it will upload the certificates to your device and connect to AWS.
+
+That's it you are now connected to AWS, congratulations!
+
+### Step 6 - MqTT
+
+Now lets start some communication with the cloud!
+
+> For more information about the MQTT API go to the [Mongoose OS MqTT documentation](https://mongoose-os.com/docs/mos/api/net/mqtt.md)
+
+First of we need some code to see if we are connected, we can do this with the following code snippets.
+
+First we add a function that we call when we connect to MqTT:
+
+```js
+function mqtt_init () {
+    print("MqTT init is called")
+    // Some more code here, fi. sending a message
+}
+```
+
+Than we create an EventHandler on the MQTT library which allows us to receive updates from the MQTT library and reacting on them:
+
+```js
+MQTT.setEventHandler(function (conn, ev, edata) {
+  if (ev !== 0) print('MQTT event handler: got', ev);
+
+  if (ev === MQTT.EV_CONNACK) {
+    print("Connection Accepted");
+
+    mqtt_init();
+  
+  } else if (ev === MQTT.EV_CLOSE) {
+    print("Connection Lost");
+  }
+}, null);
+```
+
+The `MQTT.EV_CONNACK` is called when the MqTT connection is accepted.
+When this happens we call our `mqtt_init` function. The `setEventHandler` method will call the `function`  that we defined as its argument when an event occurs.
+
+We also need to subscribe to the topic on which we want to receive data. This can also be done with a method of the `MQTT` library. We do this as followed:
+
+
+```js
+MQTT.sub('iot/team_name/note', function(conn, topic, msg) {
+    // This will print the message to the console.
+    print('Topic:', topic, 'message:', msg);
+}, null);
+```
+
+It would be easier to prepare our code to play a note by adding the following line to our `MQTT.SUB` function.
+
+```js
+playNote(msg);
+```
+
+Your code should now look like this:
+
+```js
+
+// --- SNIP ---
+
+
+// Accepts a note (which is a string) that exists in the NOTE object.
+function playNote(note) {
+    // Play the note
+    PWM.set(PIEZO_PIN, NOTE[note], 0.75);
+
+    // After 1 second stop playing the note
+    Timer.set(1000, 0, function() {
+        PWM.set(PIEZO_PIN, 0, 0);
+    }, null);
+}
+
+// Call the playNote function with as note parameter G5
+playNote("G5");
+
+function mqtt_init () {
+    print("MqTT init is called")
+    // Some more code here, fi. sending a message
+}
+
+MQTT.setEventHandler(function (conn, ev, edata) {
+    if (ev !== 0) print('MQTT event handler: got', ev);
+  
+    if (ev === MQTT.EV_CONNACK) {
+      print("Connection Accepted");
+  
+      mqtt_init();
+    
+    } else if (ev === MQTT.EV_CLOSE) {
+      print("Connection Lost");
+    }
+}, null);
+
+MQTT.sub('iot/team_name/note', function(conn, topic, msg) {
+    // This will print the message to the console.
+    print('Topic:', topic, 'message:', msg);
+    playNote(msg);
+}, null);
+```
+
+So basically that's it you can add some code to for instance play a note when you connect to MQTT or when you disconnect. And probably you want to add some message validation etc. But this does the trick for now :D
+
+### Part 7 - Testing our code
+

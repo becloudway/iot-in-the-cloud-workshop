@@ -72,6 +72,15 @@ For windows devices you can check if everything works by going to your hardware 
 
 > //TODO Requires a Windows os for checking and making screenshots
 
+## Installing the AWS CLI
+If you are going to use the ESP32 with AWS you will need the AWS CLI to connect to the cloud.
+
+You can install the AWS CLI from the following page [https://aws.amazon.com/cli/](https://aws.amazon.com/cli/). For Linux/Unix you will need Python which can be installed from here [https://www.python.org/](https://www.python.org/) and then you should install the AWS CLI with PIP:
+
+```sh
+pip install awscli
+```
+
 ## Last words
 
 When you finished setting up the basics, you can go back to the guided tutorials and start following the steps however there are some tips:
