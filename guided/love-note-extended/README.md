@@ -640,7 +640,7 @@ const AWS = require('aws-sdk');
 
 // The endpount can be found in the AWS IoT Core Console under settings
 // We now create an instance of the AWS IotData module to communicate with the AWS Iot service.
-const iotdata = new AWS.IotData({endpoint: 'ag2aqh54ogqqs-ats.iot.eu-west-1.amazonaws.com'});
+const iotdata = new AWS.IotData({endpoint: 'xxxxxxxxxxxxxx-ats.iot.eu-west-1.amazonaws.com'});
 
 // This exports our handler function so that AWS Lambda can execute it. This is our point of entry for AWS Lambda.
 exports.handler = async (event) => {
