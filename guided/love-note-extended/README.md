@@ -190,9 +190,103 @@ Next enter the following command: `mos build` this will send your code and mos.y
 
 Your output should look similar to this:
 
-![mos build](../images/build.png)
-
-
+![mos build](../images/mos_build.png)
 
 > If you whant to learn more about flashing and firmware [click here](https://en.wikipedia.org/wiki/Firmware) :)
 
+Now we need to flash our firmware onto our device. We can do this by running `mos flash` this will start the flashing process as you can see in the left panel. This can take some time.
+
+![mos flash](../images/mos_flash.png)
+
+When all that flashing is done. Our project will start up and show us some `hello world!` in the right panel.
+
+![hello world](../images/hello_wold.png)
+
+That's it for this part, now you have a running `hello world` example, congratulations!
+
+### Step 3
+
+Now let's get down to business, we will need to write some code that allows us to connect to AWS and receive a MqTT message.
+So to start we will remove the timer because we don't need that one anymore. When that is removed we can start coding below.
+
+```js
+// Where your code starts
+```
+
+We will need 3 things:
+
+- A subscription on a MqTT topic
+- Code that updates our shadow
+- A function to play notes
+
+But we will start with defining our pin.
+
+To do so we will need the following code:
+
+```js
+let PIEZO_PIN = 5;
+PWM.set(PIEZO_PIN, 0, 0);
+```
+
+which means that we assign the value of `5` to our variable `PIEZO_PIN`. We write the variable name (PIEZO_PIN) in capital letters to make it clear that his is a constant (we don't whant to change it's value anymore). The `PWM.set` method takes 3 arguments: the pin, the frequency and the width (percentage of time to be high). 
+
+By setting the frequency and width to 0 we will basically mute the tone. We do this because sometimes pins still have current going and if so we will get an annoying tone.
+
+Now let's write a function that plays a tone, to so we first have to define our notes:
+
+An easy way to do this is by mapping our notes to a certain frequency so add the following piece of code:
+
+### Step 3.PlayNotes
+
+```js 
+// NOTE object maps Frequencies to Notes
+let NOTE = {
+    C5: 523,
+    CS5: 554,
+    D5: 587,
+    DS5: 622,
+    E5: 659,
+    F5: 698,
+    FS5: 740,
+    G5: 784,
+    GS5: 831,
+    A5: 880,
+    AS5: 932,
+    Bb5: 920,
+    B5: 988,
+    C6: 1047,
+    R: 0
+};
+```
+
+Here we have an `Object` called `NOTE` which contains some properties of which each has a frequency defined to them.
+We can access these notes by doing `NOTE.C5` which will give us the value `523`.
+
+So now that we have our NOTE object we can start writing a function that plays the note that you give to it.
+
+```js
+// Accepts a note (which is a string) that exists in the NOTE object.
+function playNote(note) {
+    // Play the note
+    PWM.set(PIEZO_PIN, NOTE[note], 0.75);
+
+    // After 1 second stop playing the note
+    Timer.set(1000, 0, function() {
+        PWM.set(PIEZO_PIN, 0, 0);
+    }, null);
+}
+
+// Call the playNote function with as note parameter G5
+playNote("G5");
+```
+
+To test this open up your MOS UI and run the following commands.
+
+```sh
+mos put fs/init.js
+mos call Sys.Reboot
+```
+
+This will send the updated code to your device and reboot the system. When that is done you should hear a beeping G5.
+
+### Step 3.ConnectingToAWS
