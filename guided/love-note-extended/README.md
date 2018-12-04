@@ -200,7 +200,7 @@ Now we need to flash our firmware onto our device. We can do this by running `mo
 
 When all that flashing is done. Our project will start up and show us some `hello world!` in the right panel.
 
-![hello world](../images/hello_wold.png)
+![hello world](../images/hello_world.png)
 
 That's it for this part, now you have a running `hello world` example, congratulations!
 
@@ -493,4 +493,211 @@ Not hit `Publish to topic` to send the message towards the topic and you should 
 
 ### Part 8 - Lambda
 
-For the final part, we will use a Lambda function to play our note.
+For the final part, we will use a Lambda function to play our note this might seem silly, because it is a bit silly. But you can improve it afterwards!
+
+So let's go back to the home screen of the AWS Console and search for Lambda. Select `lambda` and you should now see something like the following image:
+
+![AWS LAMBDA](../images/aws_lambda.png)
+
+At the left side there is a big orange button with the text `Create function` click on this button. 
+
+Keep the `Author from scratch` choice and fill in a function name like: `iot_teamname_note_lambda`. Keep the Runtime like it is (because we are doing JS today).
+
+For the Role select `custom role` a new window should open.
+
+In this new window select for IAM Role `Create a new IAM Role` and change the role name to: `iot_teamname_note_role`. Now click `View Policy Document` and click on `Edit`.
+Now you can edit the policy document. Remove the current content. Now copy and paste the following policy:
+
+> p.s. this is not a secure way of doing this because you would be better of fine graining permissions, but for this workshop that is out of scope.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+        ],
+        "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "iot:*"
+        ],
+        "Resource": "*"
+    }
+  ]
+}
+```
+
+Now it should send you back to the `Create function` page and the Existing role should now contain your new role's name.
+
+Hit `Create Function` the orange button and you should see the following page.
+
+![AWS LAMBDA FUNCTION PAGE](../images/lambda_page.png)
+
+This is where you can edit your lambda's code the code that you are seeing right now should look something like this:
+
+```JS
+exports.handler = async (event) => {
+    // TODO implement
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify('Hello from Lambda!'),
+    };
+    return response;
+};
+```
+
+What happens here is that you export a method which is a `handler`. When AWS executes your lambda it will find this method and execute it.
+
+The `event` property contains all the data passed on from AWS the content depends on how the method is called and by which service.
+
+Our response is basically what we whant to send back when we finish our function. It's a HTTP response so `statusCode: 200` is an `OK` response and the body is a string containing `Hello from Lambda!`.
+
+Lets test this small piece of code.
+
+At the top of your page you should see an button with the text `Test`. Click on this button and it will show you the following screen:
+
+![CREATE TEST](../images/test_note.png)
+
+Enter the values of the image above and hit `Create`. Now the window should close. When this is done, you can hit test again to run your function and get a result.
+
+It should be a big green box saying that it was sucesfull.
+
+Now let's change our code to send the note we entered in our test case to our device.
+
+We first need to add the AWS SDK which allows us to access AWS service from our function.
+
+We do this by adding this line at the very beginning of the document.
+
+```js
+const AWS = require('aws-sdk');
+```
+
+Now we can setup the IotData module from the AWS SDK by adding the following line under the `const AWS ...` line.
+
+```js
+const iotdata = new AWS.IotData({endpoint: 'xxxxxxxxxxx.iot.eu-west-1.amazonaws.com'});
+```
+
+We need to change our endpoint uri, we can do this by going to the AWS IoT console (best in a new window/tab). And choosing for settings.
+
+Copy the uri you see on this page:
+
+![iot-endpoint](../images/iot-endpoint.png)
+
+Now replace the `endpoint: 'this part...'` with the right endpoint uri.
+
+Now replace the **code inside the handler function** with the following code:
+
+```js
+    const params = {
+        topic: 'iot/team_name/note',
+        payload: event.note,
+        qos: 0
+    };
+
+    let response = {
+        statusCode: 200,
+        body: "empty"
+    };
+    
+    try {
+       let result = await new Promise((resolve, reject) => {
+            iotdata.publish(params, (err, data) => {
+                if(err)
+                    reject(err);
+                else
+                    resolve(data);
+            });
+        });
+
+
+        response = {
+            statusCode: 200,
+            body: JSON.stringify(result)
+        };
+    } catch (ex) {
+        response = {
+            statusCode: 500,
+            body: JSON.stringify(ex)
+        };
+    }
+
+    return response;
+```
+
+The code should now look like this, except for the endpoint and the additional comments for explaining what the code does.
+
+```js
+// This import the AWS sdk so that we can access it's modules to use AWS services.
+const AWS = require('aws-sdk');
+
+// The endpount can be found in the AWS IoT Core Console under settings
+// We now create an instance of the AWS IotData module to communicate with the AWS Iot service.
+const iotdata = new AWS.IotData({endpoint: 'ag2aqh54ogqqs-ats.iot.eu-west-1.amazonaws.com'});
+
+// This exports our handler function so that AWS Lambda can execute it. This is our point of entry for AWS Lambda.
+exports.handler = async (event) => {
+    
+    // We create our PARAMS that we will for sending to MQTT
+    // The 'topic' is our MqTT topic (destination) and the payload is what we whant to send.
+    // QOS can be either 0 or 1.
+    const params = {
+        topic: 'iot/team_name/note',
+        payload: event.note,
+        qos: 0
+    };
+
+    // The response object is what we return when our function completes
+    let response = {
+        statusCode: 200,
+        body: "empty"
+    };
+    
+    // Because we want to return an error code when everything goes wrong we put our login in a try-catch block.
+    try {
+        // We use an Promise because  most of AWS services are Async which means that you send your request but the data will be send back later. So we await a response using a promise.
+       let result = await new Promise((resolve, reject) => {
+
+           // We call publish on our iotdata instance wich will publish our payload to the topic we defined in the params const.
+            iotdata.publish(params, (err, data) => {
+                // When there is an error we reject (throw) the error
+                if(err)
+                    reject(err);
+                // If there is no error we resolve (return) the data.
+                else
+                    resolve(data);
+            });
+        });
+
+        // We set our response for success with a 200 - ok status code.
+        response = {
+            statusCode: 200,
+            body: JSON.stringify(result)
+        };
+    } catch (ex) {
+        // if an error occurs we log it to cloudwatch
+        console.log(ex);
+        // and return the error status code 500 with the error response as body.
+        response = {
+            statusCode: 500,
+            body: JSON.stringify(ex)
+        };
+    }
+
+
+    // Finally we return our error to AWS Lambda.
+    return response;
+};
+
+```
+
+So this is how you create a very basic lambda, now you can change things around, even make a API using AWS Api Gateway amd play notes using a simple api gateway endpoint (url).
+
+This is it for this guided workshop, we hope you see that there are many options and we do recommend you to turn this in an API.
