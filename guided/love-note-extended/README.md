@@ -698,6 +698,6 @@ exports.handler = async (event) => {
 
 ```
 
-So this is how you create a very basic lambda, now you can change things around, even make a API using AWS Api Gateway amd play notes using a simple api gateway endpoint (url).
+So this is how you create a very basic lambda, now you can change things around, even make a API using AWS Api Gateway and play notes using a simple api gateway endpoint (url).
 
-This is it for this guided workshop, we hope you see that there are many options and we do recommend you to turn this in an API.
+This is it for this guided workshop, we hope that you see that there are many options and we do recommend you to turn this in an API.
