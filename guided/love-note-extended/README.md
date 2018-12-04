@@ -563,7 +563,7 @@ Lets test this small piece of code.
 
 At the top of your page you should see an button with the text `Test`. Click on this button and it will show you the following screen:
 
-![CREATE TEST](../images/test_note.png)
+![CREATE TEST](../images/test_event.png)
 
 Enter the values of the image above and hit `Create`. Now the window should close. When this is done, you can hit test again to run your function and get a result.
 
