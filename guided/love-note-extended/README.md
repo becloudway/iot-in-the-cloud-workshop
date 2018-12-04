@@ -489,7 +489,7 @@ Now scroll down, go to `Publish` for topic name enter: `iot/team_name/note` and 
 
 Not hit `Publish to topic` to send the message towards the topic and you should hear a C5 buzzer note.
 
-![aws iot test](../images/aws_iot_publsh.png)
+![aws iot test](../images/aws_iot_publish.png)
 
 ### Part 8 - Lambda
 
