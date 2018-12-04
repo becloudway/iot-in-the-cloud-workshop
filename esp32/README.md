@@ -7,6 +7,8 @@ This is the basic source code for the workshop, we also provided some basic comm
 
 ## ESP32 Drivers + Mongoose Os Installation
 
+Check [mongoose-os.com](https://mongoose-os.com) for more in depth information about mongoose-os. Which is an awesome IoT framework.
+
 ## ESP32 (WROOM-32) Some information
 
 | [Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf) | [Projects](https://hackaday.io/projects?tag=ESP32) |
