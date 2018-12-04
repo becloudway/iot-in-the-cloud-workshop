@@ -307,7 +307,7 @@ On the left you can click on `Users` which should bring you to the user list, he
 
 Now go to the `Security Credentials` tab.
 
-![user security credentials](../images/aws_console_user_info.png)
+![user security credentials](../images/aws_console_iam_user_info.png)
 
 Scroll down a bit and you will find the `Create access key` button, click on it and it will show you the following pop-up.
 
