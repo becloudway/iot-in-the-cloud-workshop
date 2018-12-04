@@ -698,6 +698,8 @@ exports.handler = async (event) => {
 
 ```
 
+Now hit `save` at the the top of the page and wait a bit until the function is saved. When this is done hit the `Test` button again. Now you should hear a sound coming from your device. 
+
 So this is how you create a very basic lambda, now you can change things around, even make a API using AWS Api Gateway and play notes using a simple api gateway endpoint (url).
 
 This is it for this guided workshop, we hope that you see that there are many options and we do recommend you to turn this in an API.
