@@ -162,6 +162,7 @@ MQTT.setEventHandler(function (conn, ev, edata) {
 
 
 ### Simple Timer
+
 ```JS
 Timer.set(1000, Timer.REPEAT, function () {
     // Alternative for a loop, send a message every secoond if connected.
@@ -172,6 +173,7 @@ Timer.set(1000, Timer.REPEAT, function () {
 ```
 
 ### GPIO Example
+
 ```JS
 let BTN = 2;
 let LED_GREEN = 4;
