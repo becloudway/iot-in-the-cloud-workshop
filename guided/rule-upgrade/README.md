@@ -377,14 +377,14 @@ For the name fill in: `iot_teamname_dynamodb_rule` you can fill in a description
 Then we have the Rule Query Statement keep the version as it is and for the query fill in:
 
 ```sql
-SELECT * FROM "iot/teamname/rule/upgrade";
+SELECT * as message FROM "iot/team_name/rule/+"
 ```
 
 This will just select the entire body from the message. The from part is our `Topic`.
 We could also do for instance:
 
 ```sql
-SELECT *, newuuid() as uuid FROM "iot/teamname/rule/+";
+SELECT * FROM "iot/teamname/rule/+"
 ```
 
 `newuuid() as uuid` will create a new UUID and assign it as the property uuid. So that we can later use this generated uuid as a primary key for our DynamoDB entry.
@@ -422,5 +422,36 @@ We need to create a new dynamodb table to store the message in. We do this by cl
 
 ![dynamodb home page](../images/aws_dynamodb_home.png)
 
-Click on `Create Table` on the next page fill in the following fiels like shown in the picture below.
+Click on `Create Table` on the next page fill in the following fields like shown in the picture below.
 
+![dynamodb table creation](../images/dynamodb_create_table.png)
+
+After you filled in all the fields of the table with the correct information, press the `Create` button at the bottom right.
+
+When this is done you, you will be send to the DyanmoDB table overview and you will see that the table is being provisioned.
+
+Now go back to your IoT rule page, click on the `refresh button` to refresh your results and now you should be able to select your newly created table. (The refresh button is an icon, which should be at the left side of the `Create a new resource` button!).
+
+Now you can fill in some new fields, use the values from the fields down below:
+
+![iot rule table setting](../images/iot_rule_dynamodb_settings.png)
+
+To create the role you have to press the `Create a new role` button then fill in the name and press the `create a new role button` again.
+
+And at last, in your `Hash Key value` fill in `${newuuid()}` this will generate a random uuid for each entry.
+
+When this is all done hit `Create` and your IoT Rule will be created, you are send back to the Rule page showing an overview of you rule. You can click on the small arrow symbol to open up your action's settings.
+
+It should look like this:
+
+![iot overview](../images/final_rule.png)
+
+Now you can go to dynamodb's page again and click on your table.
+
+Each 30 seconds you should get a message in your DynamoDB table:
+
+![final resut](../images/dynamodb_overview.png)
+
+So that's it you created an IoT Rule with the power to add MqTT messages into your DynamoDB table. You can do alot of things with the IoT Rules, for instance trigger a lambda. You might whant to experiment with that.
+
+We hope you enjoyed this guide, and that you learned something new. If you have some points of imporvement open an issue or make a pull request.
