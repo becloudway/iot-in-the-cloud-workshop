@@ -99,7 +99,7 @@ git clone --depth=1 --branch=master https://github.com/becloudway/iot-in-the-clo
 
 This will clone the project and remove the .git history etc. so that you have a clean folder to work with.
 
-## Lets get started
+## Let's get started
 
 ### Step 1
 
@@ -126,7 +126,7 @@ find .
 
 It should show you the following file/folder structure:
 
-![folder content](./images/content.png)
+![folder content](../images/content.png)
 
 The most important files are `./mos.yml` and `./fs/init.js` so let me explain these to you.
 
@@ -140,7 +140,7 @@ This file holds your code, in this file we will be working.
 
 ### Step 2
 
-Lets open `./fs/init.js` in your favorite code editor, so that we can start coding.
+Let's open `./fs/init.js` in your favorite code editor, so that we can start coding.
 
 When you open the file it should have the following content:
 
@@ -152,6 +152,7 @@ load('api_gpio.js');
 load('api_mqtt.js');
 load('api_timer.js');
 load('api_sys.js');
+load('api_pwm.js');
 
 /*
 * We used pin 15 as an additional 3.3v power pin because our breadboards where a bit to small :D
