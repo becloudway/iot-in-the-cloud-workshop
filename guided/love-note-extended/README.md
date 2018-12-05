@@ -152,11 +152,11 @@ load('api_timer.js');
 load('api_sys.js');
 
 /*
-* We used pin 17 as an additional 3.3v power pin because our breadboards where a bit to small :D
+* We used pin 15 as an additional 3.3v power pin because our breadboards where a bit to small :D
 * But as you can see we got a workaround for that.
 */
 
-// ----------------------- THIS PART IS FOR 3.3v POWER ON PIN 17
+// ----------------------- THIS PART IS FOR 3.3v POWER ON PIN 15
 let ADDITIONAL_POWER = 15;
 
 GPIO.set_mode(ADDITIONAL_POWER, GPIO.MODE_OUTPUT);
@@ -702,4 +702,198 @@ Now hit `save` at the the top of the page and wait a bit until the function is s
 
 So this is how you create a very basic lambda, now you can change things around, even make a API using AWS Api Gateway and play notes using a simple api gateway endpoint (url).
 
-This is it for this guided workshop, we hope that you see that there are many options and we do recommend you to turn this in an API.
+### Step 9 - AWS Snadow
+
+So let's go, back to our ``favorite code editor`` and change our code a bit so that our device gets it's own shadow.
+
+Again Mongoose Os, supports AWS IoT Shadows out of the box and adding one is as easy as following these 3 steps:
+
+1. Adding an object to keep state
+2. Adding an shadowEventListener to recieve shadow updates
+3. Updating your shadow when you feel like doing so
+
+So let's start with creating an object, to keep our state. We do this by adding the following line to our code above the `function playNote(note) {` code block:
+
+```js
+let state = {lastPlayedNote: ''};
+```
+
+This state object contains our initial state. The next thing we need to do is add some code to listen for a shadow event and to start sending our state towards AWS. You can add this to the end of your file.
+
+```js
+AWS.Shadow.setStateHandler(function(data, event, reported, desired, reported_metadata, desired_metadata) {
+    // Check if the event is a CONNECTED event, which occurs when your connected succesfull
+
+    if (event === AWS.Shadow.CONNECTED) {
+        // AWS Shadow connect code here
+        playNote('B5');
+
+        // Check if the reported state contains the lastPlayedNote, if not, than send it.
+        if (reported.lastPlayedNote === undefined) {
+            AWS.Shadow.update(0, state);
+        }
+    } else if (event === AWS.Shadow.UPDATE_DELTA) { // Check if there is a DELTA update
+
+        // This for loop will loop through each key and update the state if there was an update on that key.
+        for (let key in state) {
+            if (desired[key] !== undefined) state[key] = desired[key];
+        }
+        
+        // Now we send our updated shadow state back to AWS to confirm the state.
+        AWS.Shadow.update(0, state);  // Report device state
+    } 
+
+    // And some logging to see what happens behind the screen.
+    print(JSON.stringify(reported), JSON.stringify(desired));
+}, null);
+```
+
+Finally we change our `playNote` function by adding the following lines of code to the end of the function.
+
+```js
+    state.lastPlayedNote = note;
+    AWS.Shadow.update(0, state);
+```
+
+This will update the state with the new note whenever you play one and send it to AWS.
+
+Your full code should now look like this (without the comments maybe?):
+
+```js
+// Load some dependencies
+load('api_aws.js');
+load('api_config.js');
+load('api_gpio.js');
+load('api_mqtt.js');
+load('api_timer.js');
+load('api_sys.js');
+load('api_pwm.js');
+
+/*
+* We used pin 15 as an additional 3.3v power pin because our breadboards where a bit to small :D
+* But as you can see we got a workaround for that.
+*/
+
+// ----------------------- THIS PART IS FOR 3.3v POWER ON PIN 15
+let ADDITIONAL_POWER = 15;
+
+GPIO.set_mode(ADDITIONAL_POWER, GPIO.MODE_OUTPUT);
+GPIO.write(ADDITIONAL_POWER, 1);
+// ----------------------- DON'T CHANGE THIS
+
+// Where your code starts
+
+let PIEZO_PIN = 5;
+PWM.set(PIEZO_PIN, 0, 0);
+
+// NOTE object maps Frequencies to Notes
+let NOTE = {
+    C5: 523,
+    CS5: 554,
+    D5: 587,
+    DS5: 622,
+    E5: 659,
+    F5: 698,
+    FS5: 740,
+    G5: 784,
+    GS5: 831,
+    A5: 880,
+    AS5: 932,
+    Bb5: 920,
+    B5: 988,
+    C6: 1047,
+    R: 0
+};
+
+let state = {lastPlayedNote: ''};
+
+// Accepts a note (which is a string) that exists in the NOTE object.
+function playNote(note) {
+    // Play the note
+    PWM.set(PIEZO_PIN, NOTE[note], 0.75);
+
+    // After 1 second stop playing the note
+    Timer.set(1000, 0, function() {
+        PWM.set(PIEZO_PIN, 0, 0);
+    }, null);
+
+    state.lastPlayedNote = note;
+    AWS.Shadow.update(0, state);
+}
+
+// Call the playNote function with as note parameter G5
+playNote("G5");
+
+function mqtt_init () {
+    print("MqTT init is called")
+    // Some more code here, fi. sending a message
+}
+
+MQTT.setEventHandler(function (conn, ev, edata) {
+    if (ev !== 0) print('MQTT event handler: got', ev);
+  
+    if (ev === MQTT.EV_CONNACK) {
+      print("Connection Accepted");
+  
+      mqtt_init();
+    
+    } else if (ev === MQTT.EV_CLOSE) {
+      print("Connection Lost");
+    }
+}, null);
+
+MQTT.sub('iot/team_name/note', function(conn, topic, msg) {
+    // This will print the message to the console.
+    print('Topic:', topic, 'message:', msg);
+    playNote(msg);
+}, null);
+
+AWS.Shadow.setStateHandler(function(data, event, reported, desired, reported_metadata, desired_metadata) {
+    // Check if the event is a CONNECTED event, which occurs when your connected succesfull
+
+    if (event === AWS.Shadow.CONNECTED) {
+        // AWS Shadow connect code here
+        playNote('B5');
+
+        // Check if the reported state contains the lastPlayedNote, if not, than send it.
+        if (reported.lastPlayedNote === undefined) {
+            AWS.Shadow.update(0, state);
+        }
+    } else if (event === AWS.Shadow.UPDATE_DELTA) { // Check if there is a DELTA update
+
+        // This for loop will loop through each key and update the state if there was an update on that key.
+        for (let key in state) {
+            if (desired[key] !== undefined) state[key] = desired[key];
+        }
+        
+        // Now we send our updated shadow state back to AWS to confirm the state.
+        AWS.Shadow.update(0, state);  // Report device state
+    } 
+
+    // And some logging to see what happens behind the screen.
+    print(JSON.stringify(reported), JSON.stringify(desired));
+}, null);
+
+```
+
+Now you can send the code to your device and reboot it. Now you can go to the AWS Console and go into the IoT Core screen. Here you can select `Manage` in the sidebar, and choose for `Things` in the sub menu.
+
+Now you should see a overview of the Thing that are connected to this AWS Environment.
+
+Here you should select your device, to see the ID of your device you can use the following command in your MOS UI.
+
+```sh
+mos config-get device.id
+```
+
+This will return your devices ID that is used as the device name for your AWS Thing. Now when you click on it it should show you the following page.
+
+![Thing overview](../images/aws_shadow.png)
+
+In the left menu you can select `Shadow`, which should show you your device's shadow.
+
+![Thing shadow](../images/device_shadow.png)
+
+Now if you use your previously created lambda to send a note, the device shadow should update and your note should still play.
+
+This was it for this tutorial, you learned how to create a basic lambda, how to setup the ESP32 for the Cloud and did some basic programming with the ESP32 and AWS. We hope that you enjoyed this guide and that you learned something new. If you think that we could improve certain aspects of our guide, feel free to let us know.
