@@ -2,7 +2,7 @@
 
 There are 2 folders, one for ESP32 project files and information and one for AWS project files and information.
 
-They both contain a readme.md with some information to follow the workshop.
+They both contain a readme.md with some information to follow the workshop. We also provided a folder called guided, in which you find some fully finished examples from the list below. With steps on how to make them yourself.
 
 ## List of things that you can do
 

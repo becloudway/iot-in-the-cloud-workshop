@@ -55,7 +55,7 @@ The things you will need to do:
   - Check if your message shows up.
 - Now have some fun
 
-## Some additional information about the services you will use
+## Some additional information about the services that you will use
 
 ### AWS IoT Core Rule Engine
 
