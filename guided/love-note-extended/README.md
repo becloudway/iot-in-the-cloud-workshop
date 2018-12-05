@@ -1,15 +1,15 @@
 # The Extended Love Note
 
-> ### Make sure to finish basic setup first!
+> ## Make sure to finish basic setup first!
 > We wrote a basic installation manual which you can find here: [Basic Installation](https://github.com/becloudway/iot-in-the-cloud-workshop/tree/master/guided/installation). 
 > You can also use the Quickstart guide from Mongoose Os which can be found here [Quick Start Guide - Mongoose Os](https://mongoose-os.com/docs/quickstart/setup.md) finish step 1 to 3 and you should be fine. But you would still need to install GIT and the AWS CLI.
 
 ## What you will be making?
 
-For this "challenge" we will create an ESP32 with buzzer (piezo element) that plays a note that it receives from a lambda which sends this note over MqTT.
+For this "challenge" we will create an ESP32 with buzzer (piezo element). That plays a note that it receives from a lambda, which sends this note over MqTT.
 It will also send feedback by using the device shadow to send the last played notes.
 
-This is the extended version of this challenge because I added a lambda to send the notes, you can do it without lambda by using the AWS IoT Service to publish the "note". To do this you can go to the AWS IoT Console and use the test option in the menu (As you can see later when we test our ESP32, before making the lambda).
+This is the extended version of this challenge because I added a lambda to send the notes and also an example of an IoT Shadow, you can do it without lambda by using the AWS IoT Service to publish the "note". To do this you can go to the AWS IoT Console and use the test option in the menu (As you can see later when we test our ESP32, before making the lambda).
 
 ## What you will need
 
@@ -40,14 +40,15 @@ If you whant to read more about Pulse Width Modulation read this article on [spa
 
 ## Programming the ESP32
 
-We will do this step by step, if you follow the steps correctly you will be fine. For eas of use (and a more generic guide) we will be using the MOS UI. 
+We will do this step by step, if you follow the steps correctly you will be fine. For eas of use (and a more generic guide) we will be using the MOS UI.
 
-### Before we start with coding
+### Before we start with coding ...
 
 We recommend that you create a folder for your ESP projects. It doesn't really mather whereas long as your remember the path.
 In this folder we will start, you can start by opening up the MOS Tool:
 
 #### Linux/Unix
+
 ```sh
 mos ui
 ```
@@ -98,7 +99,8 @@ git clone --depth=1 --branch=master https://github.com/becloudway/iot-in-the-clo
 
 This will clone the project and remove the .git history etc. so that you have a clean folder to work with.
 
-## Let's get started
+## Lets get started
+
 ### Step 1
 
 Now in your MOS UI navigate towards the folder using the ![folder selection](../images/folder_selection.png) icon.
@@ -107,14 +109,14 @@ The folder's name should be love-note.
 Your path should look something like this.
 
 ```
-windows: c:\users\youruser\...\workspace\love-note
+Windows: c:\users\youruser\...\workspace\love-note
 
 Unix\Linux: /Users/youruser/.../workspace/love-note
 ```
 
 When you run the following command:
 
-```
+```sh
 // windows
 tree
 
@@ -130,7 +132,7 @@ The most important files are `./mos.yml` and `./fs/init.js` so let me explain th
 
 `mos.yml`
 
-This is the mos definition file used for building your project, it contains references to the libraries you use and about your target platform etc. You can open the file and check it out if you like but we  did the setup for you.
+This is the mos definition file used for building your project, it contains references to the libraries you use and information about your target platform etc. You can open the file and check it out if you like but we did the setup for you.
 
 `./fs/init.js`
 
@@ -138,7 +140,7 @@ This file holds your code, in this file we will be working.
 
 ### Step 2
 
-Now let's open `./fs/init.js` in your favorite code editor. So that we can start coding.
+Lets open `./fs/init.js` in your favorite code editor, so that we can start coding.
 
 When you open the file it should have the following content:
 
@@ -179,7 +181,7 @@ For the tutorial we will focus on everything underneath the following line:
 // Where your code starts
 ```
 
-There is a timer down there so we will first check if everything is setup correctly. We will do this by finally running a program on our ESP32.
+There is a timer down there so we will first check if everything is set up correctly. We will do this by finally running a program on our ESP32.
 
 So how do we get started, well make sure that you now connect your ESP32 to your computer. And open up the MOS UI.
 Make sure that you are connected to your device and selected the right device type.
@@ -198,7 +200,7 @@ Now we need to flash our firmware onto our device. We can do this by running `mo
 
 ![mos flash](../images/mos_flash.png)
 
-When all that flashing is done. Our project will start up and show us some `hello world!` in the right panel.
+When all that flashing is done, our project will start up and show us some `hello world!` in the right panel.
 
 ![hello world](../images/hello_world.png)
 
@@ -207,7 +209,7 @@ That's it for this part, now you have a running `hello world` example, congratul
 ### Step 3
 
 Now let's get down to business, we will need to write some code that allows us to connect to AWS and receive a MqTT message.
-So to start we will remove the timer because we don't need that one anymore. When that is removed we can start coding below.
+So to start we will remove the timer because we don't need that one anymore. When that is removed, we can start coding below.
 
 ```js
 // Where your code starts
@@ -228,7 +230,7 @@ let PIEZO_PIN = 5;
 PWM.set(PIEZO_PIN, 0, 0);
 ```
 
-which means that we assign the value of `5` to our variable `PIEZO_PIN`. We write the variable name (PIEZO_PIN) in capital letters to make it clear that his is a constant (we don't whant to change it's value anymore). The `PWM.set` method takes 3 arguments: the pin, the frequency and the width (percentage of time to be high). 
+which means that we assign the value of `5` to our variable `PIEZO_PIN`. We write the variable name (PIEZO_PIN) in capital letters to make it clear that it is a constant (we don't whant to change its value anymore). The `PWM.set` method takes 3 arguments: the pin, the frequency and the width (percentage of time to be high). 
 
 By setting the frequency and width to 0 we will basically mute the tone. We do this because sometimes pins still have current going and if so we will get an annoying tone.
 
@@ -259,10 +261,10 @@ let NOTE = {
 };
 ```
 
-Here we have an `Object` called `NOTE` which contains some properties of which each has a frequency defined to them.
+Here we have an `Object` called `NOTE` which contains some keys, that each have an frequence assigned to them.
 We can access these notes by doing `NOTE.C5` which will give us the value `523`.
 
-So now that we have our NOTE object we can start writing a function that plays the note that you give to it.
+So now that we have our NOTE object we can start writing a function that plays the note, that you pass as an agurment.
 
 ```js
 // Accepts a note (which is a string) that exists in the NOTE object.
@@ -287,7 +289,7 @@ mos put fs/init.js
 mos call Sys.Reboot
 ```
 
-This will send the updated code to your device and reboot the system. When that is done you should hear a beeping G5.
+This will send the updated code to your device and reboot the system. When that is done, you should hear a beeping G5.
 
 ### Step 5 - Connecting To AWS
 
@@ -295,7 +297,7 @@ Now that we can play a note the easy part is over, because now we need to connec
 
 So let's get started by going to the AWS console by [clicking here](https://eu-west-1.signin.aws.amazon.com). Enter you alias, username and password (during the workshop you will get our alias, iam username and password). Hit `Sign In`.
 
-Now that you are in the AWS Console you have to find IAM, you can do this by clicking the search box and enter `iam` and than clicking on `IAM`.
+Now that you are in the AWS Console you have to find IAM, you can do this by clicking the search box and enter `iam` and then clicking on `IAM`.
 
 ![finding iam](../images/aws_console_find_iam.png)
 
@@ -318,6 +320,7 @@ Make sure to hit `download .csv file` to save your credentials and if you like y
 Now go back to the MOS UI for the next part.
 
 Next there are two things that you need to do:
+
 1. Connecting your ESP32 to the WIFI
 2. Setup AWS IOT for your ESP32
 
@@ -341,9 +344,9 @@ mgos_net_on_change_c WiFi STA: connected
 
 **Setting up AWS IoT**
 
-Let's setup our AWS credentials:
+Lets setup our AWS credentials:
 
-open a terminal and enter the following command.
+Open up a terminal and enter the following command.
 
 ```sh
 aws configure
@@ -351,9 +354,7 @@ aws configure
 
 When prompted enter your access key id and secret key. For the region enter `eu-west-1` and for default output format just hit enter.
 
-Now restart MOS UI to make sure that it loaded your new credentials. 
-
-This will set your credentials for AWS so that you can now use the AWS CLI.
+Now restart MOS UI to make sure that it loaded your new credentials.
 
 If you did setup your AWS credentials correctly it should be as easy as entering:
 
@@ -361,7 +362,7 @@ If you did setup your AWS credentials correctly it should be as easy as entering
 mos aws-iot-setup
 ```
 
-This will run some commands using the AWS CLI and create the required certificates. Than it will upload the certificates to your device and connect to AWS.
+This will run some commands using the AWS CLI and create the required certificates. Then it will upload the certificates to your device and connect to AWS.
 
 That's it you are now connected to AWS, congratulations!
 
@@ -382,7 +383,7 @@ function mqtt_init () {
 }
 ```
 
-Than we create an EventHandler on the MQTT library which allows us to receive updates from the MQTT library and reacting on them:
+Then we create an EventHandler on the MQTT library which allows us to receive updates from the MQTT library and reacting on them:
 
 ```js
 MQTT.setEventHandler(function (conn, ev, edata) {
@@ -400,7 +401,7 @@ MQTT.setEventHandler(function (conn, ev, edata) {
 ```
 
 The `MQTT.EV_CONNACK` is called when the MqTT connection is accepted.
-When this happens we call our `mqtt_init` function. The `setEventHandler` method will call the `function`  that we defined as its argument when an event occurs.
+When this happens we call our `mqtt_init` function, the `setEventHandler` method will call the `function` that we defined as its argument when an event occurs.
 
 We also need to subscribe to the topic on which we want to receive data. This can also be done with a method of the `MQTT` library. We do this as followed:
 
@@ -464,7 +465,7 @@ MQTT.sub('iot/team_name/note', function(conn, topic, msg) {
 }, null);
 ```
 
-So basically that's it you can add some code to for instance to play a note when you connect to MQTT or when you disconnect. And probably you want to add some message validation etc. But this does the trick for now :D
+So basically that's it you can add some code to for instance to play a note when you connect to MQTT or when you disconnect. And probably you want to add some message validation etc. But this does the trick for now :D (later we will add a `device shadow`)
 
 So go to your MOS UI and enter the following commands:
 
@@ -477,7 +478,7 @@ If everything went alright, you should here your G5 playing and in the console o
 
 ### Part 7 - Testing our code
 
-Now let's head back to the AWS Console homepage. Here we will search for `IoT` and select `IoT Core` so far so good. You should now see the following page. If you do not, you might see the get started page if so just hit `the blue button`.
+Now lets head back to the AWS Console homepage. Here we will search for `IoT` and select `IoT Core` so far so good. You should now see the following page. If you do not, you might see the get started page if so just hit `the blue button`.
 
 ![aws iot test](../images/aws_iot_test.png)
 
@@ -508,7 +509,7 @@ For the Role select `custom role` a new window should open.
 In this new window select for IAM Role `Create a new IAM Role` and change the role name to: `iot_teamname_note_role`. Now click `View Policy Document` and click on `Edit`.
 Now you can edit the policy document. Remove the current content. Now copy and paste the following policy:
 
-> p.s. this is not a secure way of doing this because you would be better of fine graining permissions, but for this workshop that is out of scope.
+> p.s. this is not a secure way of doing this because you would be better of fine graining permissions, but for this workshop that is out of scope. [Read more about it here](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html)
 
 ```json
 {
@@ -534,7 +535,7 @@ Now you can edit the policy document. Remove the current content. Now copy and p
 }
 ```
 
-Now it should send you back to the `Create function` page and the Existing role should now contain your new role's name.
+Now it should send you back to the `Create function` page and the `Existing role` should now contain your new role's name.
 
 Hit `Create Function` the orange button and you should see the following page.
 
@@ -559,13 +560,13 @@ The `event` property contains all the data passed on from AWS the content depend
 
 Our response is basically what we whant to send back when we finish our function. It's a HTTP response so `statusCode: 200` is an `OK` response and the body is a string containing `Hello from Lambda!`.
 
-Lets test this small piece of code.
+Let's test this small piece of code.
 
 At the top of your page you should see an button with the text `Test`. Click on this button and it will show you the following screen:
 
 ![CREATE TEST](../images/test_event.png)
 
-Enter the values of the image above and hit `Create`. Now the window should close. When this is done, you can hit test again to run your function and get a result.
+Enter the values of the image above and hit `Create`. Now the window should close. When this is done, you can hit `Test` again to run your function and get a result.
 
 It should be a big green box saying that it was sucesfull.
 
@@ -579,7 +580,7 @@ We do this by adding this line at the very beginning of the document.
 const AWS = require('aws-sdk');
 ```
 
-Now we can setup the IotData module from the AWS SDK by adding the following line under the `const AWS ...` line.
+Now we can set up the IotData module from the AWS SDK by adding the following line under the `const AWS ...` line.
 
 ```js
 const iotdata = new AWS.IotData({endpoint: 'xxxxxxxxxxx.iot.eu-west-1.amazonaws.com'});
@@ -698,13 +699,13 @@ exports.handler = async (event) => {
 
 ```
 
-Now hit `save` at the the top of the page and wait a bit until the function is saved. When this is done hit the `Test` button again. Now you should hear a sound coming from your device. 
+Now hit `save` at the top of the page and wait a bit until the function is saved. When this is done hit the `Test` button again, after that you should hear a sound coming from your device.
 
 So this is how you create a very basic lambda, now you can change things around, even make a API using AWS Api Gateway and play notes using a simple api gateway endpoint (url).
 
 ### Step 9 - AWS Snadow
 
-So let's go, back to our ``favorite code editor`` and change our code a bit so that our device gets it's own shadow.
+So let's go, back to our ``favorite code editor`` and change our code a bit so that our device gets its own shadow.
 
 Again Mongoose Os, supports AWS IoT Shadows out of the box and adding one is as easy as following these 3 steps:
 
@@ -748,7 +749,7 @@ AWS.Shadow.setStateHandler(function(data, event, reported, desired, reported_met
 }, null);
 ```
 
-Finally we change our `playNote` function by adding the following lines of code to the end of the function.
+Finally, we change our `playNote` function by adding the following lines of code to the end of the function.
 
 ```js
     state.lastPlayedNote = note;
@@ -756,8 +757,7 @@ Finally we change our `playNote` function by adding the following lines of code 
 ```
 
 This will update the state with the new note whenever you play one and send it to AWS.
-
-Your full code should now look like this (without the comments maybe?):
+Your full code should now look like this (without the comments, maybe?):
 
 ```js
 // Load some dependencies
@@ -876,17 +876,17 @@ AWS.Shadow.setStateHandler(function(data, event, reported, desired, reported_met
 
 ```
 
-Now you can send the code to your device and reboot it. Now you can go to the AWS Console and go into the IoT Core screen. Here you can select `Manage` in the sidebar, and choose for `Things` in the sub menu.
+Now you can send the code to your device and reboot it. And you can go to the AWS Console and go into the IoT Core screen. Here you can select `Manage` in the sidebar, and choose for `Things` in the sub menu.
 
-Now you should see a overview of the Thing that are connected to this AWS Environment.
+You should see a overview of the Thing that are connected to this AWS Environment.
 
-Here you should select your device, to see the ID of your device you can use the following command in your MOS UI.
+Here you can select your device, to see the ID of your device you can use the following command in your MOS UI.
 
 ```sh
 mos config-get device.id
 ```
 
-This will return your devices ID that is used as the device name for your AWS Thing. Now when you click on it it should show you the following page.
+This will return your devices ID that is used as the device name for your AWS Thing. Now when you click on it, it should show you the following page.
 
 ![Thing overview](../images/aws_shadow.png)
 
@@ -896,4 +896,4 @@ In the left menu you can select `Shadow`, which should show you your device's sh
 
 Now if you use your previously created lambda to send a note, the device shadow should update and your note should still play.
 
-This was it for this tutorial, you learned how to create a basic lambda, how to setup the ESP32 for the Cloud and did some basic programming with the ESP32 and AWS. We hope that you enjoyed this guide and that you learned something new. If you think that we could improve certain aspects of our guide, feel free to let us know.
+This was it for this tutorial, you learned how to create a basic lambda, how to set up the ESP32 for the Cloud and did some basic programming with the ESP32 and AWS. We hope that you enjoyed this guide and that you learned something new. If you think that we could improve certain aspects of our guide, feel free to let us know.
