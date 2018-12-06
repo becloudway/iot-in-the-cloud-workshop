@@ -6,7 +6,6 @@ load('api_timer.js');
 load('api_sys.js');
 load('api_pwm.js');
 
-// ----------------------- THIS PART IS FOR 3.3v POWER ON PIN 17
 let PIEZO_PIN = 15;
 
 
