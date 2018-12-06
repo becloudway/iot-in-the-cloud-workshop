@@ -10,6 +10,11 @@ let PIEZO_PIN = 15;
 
 
 let NOTE = {
+    A4: 440,
+    Bb4: 466,
+    B4: 494,
+    E4: 330,
+    G4: 392,
     C5: 523,
     CS5: 554,
     D5: 587,
@@ -43,59 +48,73 @@ function addNoteToMelody (note, length) {
     notes = melody.length;
 }
 
+function addRustNoteToMelody (note, length, rLength) {
+    melody.push({
+        note: note,
+        length: length
+    });
 
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 1000);
+    melody.push({
+        note: NOTE.R,
+        length: rLength
+    });
 
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 1000);
-addNoteToMelody(NOTE.R, 100);
+    notes = melody.length;
+}
 
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.C6, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.F5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.G5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 2000);
-addNoteToMelody(NOTE.R, 100);
+addRustNoteToMelody(NOTE.E5, 100, 20);
+addRustNoteToMelody(NOTE.E5, 100, 100);
+addRustNoteToMelody(NOTE.E5, 100, 100);
 
-addNoteToMelody(NOTE.AS5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.AS5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.AS5, 1000);
-addNoteToMelody(NOTE.R, 100);
+addRustNoteToMelody(NOTE.C5, 100, 20);
+addRustNoteToMelody(NOTE.E5, 200, 20);
+addRustNoteToMelody(NOTE.G5, 200, 200);
 
-addNoteToMelody(NOTE.AS5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 1000);
-addNoteToMelody(NOTE.R, 100);
+addRustNoteToMelody(NOTE.G4, 200, 200);
 
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.G5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.G5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.A5, 500);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.G5, 1000);
-addNoteToMelody(NOTE.R, 100);
-addNoteToMelody(NOTE.C6, 1000);
-addNoteToMelody(NOTE.R, 100);
+addRustNoteToMelody(NOTE.C5, 300, 20);
+addRustNoteToMelody(NOTE.G4, 100, 200);
+addRustNoteToMelody(NOTE.E4, 300, 20);
 
+addRustNoteToMelody(NOTE.A4, 200, 20);
+addRustNoteToMelody(NOTE.B4, 200, 20);
+addRustNoteToMelody(NOTE.Bb4, 100, 20);
+
+addRustNoteToMelody(NOTE.A4, 200, 20);
+addRustNoteToMelody(NOTE.G4, 66, 20);
+addRustNoteToMelody(NOTE.E5, 66, 20);
+addRustNoteToMelody(NOTE.G5, 66, 20);
+
+addRustNoteToMelody(NOTE.A5, 200, 20);
+addRustNoteToMelody(NOTE.F5, 100, 20);
+addRustNoteToMelody(NOTE.G5, 100, 100);
+
+addRustNoteToMelody(NOTE.E5, 200, 20);
+addRustNoteToMelody(NOTE.C5, 100, 20);
+addRustNoteToMelody(NOTE.D5, 100, 20);
+
+addRustNoteToMelody(NOTE.B5, 300, 20);
+addRustNoteToMelody(NOTE.C5, 300, 20);
+addRustNoteToMelody(NOTE.G4, 100, 200);
+
+addRustNoteToMelody(NOTE.E4, 300, 20);
+addRustNoteToMelody(NOTE.A4, 200, 20);
+addRustNoteToMelody(NOTE.B4, 200, 20);
+
+addRustNoteToMelody(NOTE.Bb4, 100, 20);
+addRustNoteToMelody(NOTE.A4, 200, 20);
+addRustNoteToMelody(NOTE.G4, 66, 20);
+
+addRustNoteToMelody(NOTE.E5, 66, 20);
+addRustNoteToMelody(NOTE.G5, 66, 20);
+addRustNoteToMelody(NOTE.A5, 200, 20);
+addRustNoteToMelody(NOTE.F5, 100, 20);
+addRustNoteToMelody(NOTE.G5, 100, 100);
+
+addRustNoteToMelody(NOTE.E5, 200, 20);
+addRustNoteToMelody(NOTE.C5, 100, 20);
+addRustNoteToMelody(NOTE.D5, 100, 20);
+addRustNoteToMelody(NOTE.B4, 300, 2500);
 
 function playNote (index) {    
     let bar = melody[index];
